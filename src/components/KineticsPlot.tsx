@@ -35,8 +35,33 @@ export const KineticsPlot: React.FC<Props> = ({ measurements, fitResult, entry }
     return points;
   }, [fitResult, measurements, entry]);
 
-  // Scatter data
-  const scatterData = measurements.map(m => ({ s: m.substrate, v: m.rate }));
+  // Scatter data: calculate averages and individual runs
+  const scatterData = useMemo(() => {
+    const groups = new Map<number, number[]>();
+    for (const m of measurements) {
+      if (!groups.has(m.substrate)) {
+        groups.set(m.substrate, []);
+      }
+      groups.get(m.substrate)!.push(m.rate);
+    }
+
+    const individualPoints: { s: number; v: number }[] = [];
+    const averagePoints: { s: number; v: number }[] = [];
+
+    for (const [s, rates] of groups.entries()) {
+      if (rates.length === 1) {
+        averagePoints.push({ s, v: rates[0] });
+      } else {
+        const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+        averagePoints.push({ s, v: avgRate });
+        for (const r of rates) {
+          individualPoints.push({ s, v: r });
+        }
+      }
+    }
+
+    return { individualPoints, averagePoints };
+  }, [measurements]);
 
   if (measurements.length === 0) {
     return (
@@ -85,9 +110,18 @@ export const KineticsPlot: React.FC<Props> = ({ measurements, fitResult, entry }
               legendType="line"
             />
           )}
+          {scatterData.individualPoints.length > 0 && (
+            <Scatter
+              data={scatterData.individualPoints}
+              name="Individual replicates"
+              fill="rgba(156, 163, 175, 0.5)" // Faded #9ca3af grey
+              shape="circle"
+              legendType="none"
+            />
+          )}
           <Scatter
-            data={scatterData}
-            name="Raw data"
+            data={scatterData.averagePoints}
+            name="Raw data (Average or Single)"
             fill="var(--color-point)"
             shape="circle"
             legendType="circle"

@@ -13,12 +13,34 @@ interface Props {
 export const LineweaverBurkPlot: React.FC<Props> = ({ measurements, fitResult }) => {
   // Transform data to 1/v vs 1/[S]
   const lbData = useMemo(() => {
-    return measurements
-      .filter(m => m.substrate > 0 && m.rate > 0)
-      .map(m => ({
-        invS: 1 / m.substrate,
-        invV: 1 / m.rate,
-      }));
+    const validMeasurements = measurements.filter(m => m.substrate > 0 && m.rate > 0);
+    
+    // Group by substrate
+    const groups = new Map<number, number[]>();
+    for (const m of validMeasurements) {
+      if (!groups.has(m.substrate)) {
+        groups.set(m.substrate, []);
+      }
+      groups.get(m.substrate)!.push(m.rate);
+    }
+
+    const individualPoints: { invS: number; invV: number }[] = [];
+    const averagePoints: { invS: number; invV: number }[] = [];
+
+    for (const [s, rates] of groups.entries()) {
+      const invS = 1 / s;
+      if (rates.length === 1) {
+        averagePoints.push({ invS, invV: 1 / rates[0] });
+      } else {
+        const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+        averagePoints.push({ invS, invV: 1 / avgRate });
+        for (const r of rates) {
+          individualPoints.push({ invS, invV: 1 / r });
+        }
+      }
+    }
+
+    return { individualPoints, averagePoints };
   }, [measurements]);
 
   // LB regression line from fit parameters (if available)
@@ -27,7 +49,7 @@ export const LineweaverBurkPlot: React.FC<Props> = ({ measurements, fitResult })
 
     // For MM: 1/v = (Km/Vmax)(1/[S]) + 1/Vmax
     // slope = Km / Vmax, intercept = 1 / Vmax
-    const maxInvS = Math.max(...lbData.map(d => d.invS), 1);
+    const maxInvS = Math.max(...lbData.averagePoints.map(d => d.invS), 1);
     const slope = fitResult.Km / fitResult.Vmax;
     const intercept = 1 / fitResult.Vmax;
 
@@ -93,9 +115,18 @@ export const LineweaverBurkPlot: React.FC<Props> = ({ measurements, fitResult })
               legendType="line"
             />
           )}
+          {lbData.individualPoints.length > 0 && (
+            <Scatter
+              data={lbData.individualPoints}
+              name="Individual replicates"
+              fill="rgba(156, 163, 175, 0.5)"
+              shape="circle"
+              legendType="none"
+            />
+          )}
           <Scatter
-            data={lbData}
-            name="Data (1/v vs 1/[S])"
+            data={lbData.averagePoints}
+            name="Data (Average or Single)"
             fill="var(--color-point)"
             shape="circle"
             legendType="circle"
