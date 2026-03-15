@@ -1,13 +1,13 @@
 {
-  "name": "enzlab",
+  "name": "enzkin",
   "private": true,
   "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "npm run build:all",
-    "build:simulator": "tsc -b && vite build && cp dist/index.html EnzLab_Simulator.html",
-    "build:decoder": "tsc -b && vite build -c vite.decoder.config.ts && cp dist/decoder.html EnzLab_Decoder.html",
+    "build:simulator": "tsc -b && vite build && cp dist/index.html EnzKin_Simulator.html",
+    "build:decoder": "tsc -b && vite build -c vite.decoder.config.ts && cp dist/decoder.html EnzKin_Decoder.html",
     "build:all": "npm run build:simulator && npm run build:decoder",
     "lint": "eslint .",
     "preview": "vite preview"

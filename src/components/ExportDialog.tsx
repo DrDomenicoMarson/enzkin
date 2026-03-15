@@ -29,7 +29,7 @@ export const ExportDialog: React.FC<Props> = ({
     }
     setError('');
 
-    const defaultName = `enzlab_${entryId}.csv`;
+    const defaultName = `enzkin_${entryId}.csv`;
     const name = filename.trim() || defaultName;
 
     const csv = buildCsv(measurements, entryId, fieldSep, decimalSep);
@@ -72,7 +72,7 @@ export const ExportDialog: React.FC<Props> = ({
           <input
             id="export-filename"
             type="text"
-            placeholder={`enzlab_${entryId}.csv`}
+            placeholder={`enzkin_${entryId}.csv`}
             value={filename}
             onChange={e => setFilename(e.target.value)}
           />

@@ -28,7 +28,7 @@ function DecoderApp() {
   return (
     <div style={{ maxWidth: 800, margin: '0 auto', padding: '2rem', fontFamily: 'Inter, sans-serif' }}>
       <header style={{ marginBottom: '2rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 600, color: '#0f172a', margin: 0 }}>EnzLab Decoder</h1>
+        <h1 style={{ fontSize: '2rem', fontWeight: 600, color: '#0f172a', margin: 0 }}>EnzKin Decoder</h1>
         <p style={{ color: '#64748b', marginTop: '0.5rem' }}>Lookup tool for Enzyme Kinetics experiment unknowns.</p>
       </header>
 
